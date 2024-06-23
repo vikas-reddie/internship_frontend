@@ -57,7 +57,7 @@ const Navbar = () => {
 
     
       {!isHomePage && (
-        <div onClick={handleNav} className='block md:hidden'>
+        <div onClick={handleNav} className='block md:hidden flex justify-end '>
           {nav ? <AiOutlineClose size={20} /> : <AiOutlineMenu size={20} />}
         </div>
       )}

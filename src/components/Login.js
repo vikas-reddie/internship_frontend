@@ -49,6 +49,7 @@ function Login() {
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               id="email"
               type="email"
+              autoComplete='email'
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -64,6 +65,7 @@ function Login() {
               type={showPassword ? 'text' : 'password'} 
               placeholder="Password"
               value={password}
+              autoComplete='current-password'
               onChange={(e) => setPassword(e.target.value)}
             />
             <FontAwesomeIcon

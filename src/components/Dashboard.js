@@ -1,9 +1,10 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, LineElement, PointElement, LinearScale, Title, CategoryScale } from 'chart.js';
 import { useNavigate } from 'react-router-dom';
+
 ChartJS.register(LineElement, PointElement, LinearScale, Title, CategoryScale);
 
 const initialMonthlyIncome = {
@@ -29,16 +30,17 @@ const Dashboard = () => {
   const [selectedMonth, setSelectedMonth] = useState(currentMonthName);
   const [orders, setOrders] = useState([]);
   const [monthlyIncome, setMonthlyIncome] = useState(initialMonthlyIncome);
+  const [price, setPrice] = useState({});
   const navigate = useNavigate();
 
-  const calculateIncome = (order) => {
+  const calculateIncome = useCallback((order) => {
     const items = [
-      { description: '1 Liter', quantity: parseInt(order.quantity1ltr) || 0, price: 20.00 },
-      { description: '200 ml', quantity: parseInt(order.quantity200ml) || 0, price: 5.00 },
-      { description: '20 Liter', quantity: parseInt(order.quantity20ltr) || 0, price: 50.00 },
-      { description: '2 Liter', quantity: parseInt(order.quantity2ltr) || 0, price: 30.00 },
-      { description: '500 ml', quantity: parseInt(order.quantity500ml) || 0, price: 10.00 },
-      { description: '5 Liter', quantity: parseInt(order.quantity5ltr) || 0, price: 40.00 }
+      { description: '1 Liter', quantity: parseInt(order.quantity1ltr) || 0, price: price.price1ltr || 0 },
+      { description: '200 ml', quantity: parseInt(order.quantity200ml) || 0, price: price.price200ml || 0 },
+      { description: '20 Liter', quantity: parseInt(order.quantity20ltr) || 0, price: price.price20ltr || 0 },
+      { description: '2 Liter', quantity: parseInt(order.quantity2ltr) || 0, price: price.price2ltr || 0 },
+      { description: '500 ml', quantity: parseInt(order.quantity500ml) || 0, price: price.price500ml || 0 },
+      { description: '5 Liter', quantity: parseInt(order.quantity5ltr) || 0, price: price.price5ltr || 0 }
     ];
 
     let subtotal = 0;
@@ -48,27 +50,35 @@ const Dashboard = () => {
     const tax = subtotal * 0.06;
     const total = subtotal + tax;
     return total;
-  };
+  }, [price]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:8050/getuser', {
+        const priceResponse = await axios.get('http://127.0.0.1:8050/getprice');
+        setPrice(priceResponse.data);
+      } catch (error) {
+        console.error('Error fetching price:', error);
+      }
+
+      try {
+        const userResponse = await axios.get('http://127.0.0.1:8050/getuser', {
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
-        setData(response.data);
+        setData(userResponse.data);
       } catch (error) {
         console.log(error);
       }
+
       try {
-        const response = await axios.get('http://127.0.0.1:8050/getorders');
-        const orders = response.data;
-        setTotalOrders(orders.length);
+        const ordersResponse = await axios.get('http://127.0.0.1:8050/getorders');
+        const fetchedOrders = ordersResponse.data;
+        setTotalOrders(fetchedOrders.length);
 
         const monthlyIncomeMap = { ...initialMonthlyIncome };
-        orders.forEach(order => {
+        fetchedOrders.forEach(order => {
           const month = new Date(order.created_at.split('-').reverse().join('-')).toLocaleString('default', { month: 'long' });
           const income = calculateIncome(order);
           monthlyIncomeMap[month] += income;
@@ -82,23 +92,25 @@ const Dashboard = () => {
         const year = currentDate.getFullYear();
         const specificDate = `${day}-${month}-${year}`;
 
-        const filteredOrders = orders.filter(order => order.created_at === specificDate);
+        const filteredOrders = fetchedOrders.filter(order => order.created_at === specificDate);
         setOrders(filteredOrders);
       } catch (error) {
         console.error('Error fetching orders:', error);
       }
     };
-    fetchData();
-  }, [token]);
 
-  const handlevieworder = (orderId) => {
+    fetchData();
+  }, [token, calculateIncome]);
+
+  const handleViewOrder = (orderId) => {
     navigate(`/order-details/${orderId}`);
   };
 
   const handleMonthChange = (event) => {
     setSelectedMonth(event.target.value);
   };
-  const handleviewall = () => {
+
+  const handleViewAll = () => {
     navigate('/orders');
   };
 
@@ -116,8 +128,8 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex flex-col items-center  md:ml-56 lg:ml-80 p-6 min-h-screen bg-gray-100 space-y-4">
-      <div className="w-full  p-6">
+    <div className="flex flex-col items-center md:ml-56 lg:ml-80 p-6 min-h-screen bg-gray-100 space-y-4">
+      <div className="w-full p-6">
         {data ? (
           <h2 className="text-2xl font-bold">Welcome, {data.name}</h2>
         ) : (
@@ -126,7 +138,7 @@ const Dashboard = () => {
         <p className="mt-4 text-xl">Dashboard Summary</p>
       </div>
 
-      <div className="w-full flex flex-wrap  md:flex-nowrap justify-between space-y-4 md:space-y-0 space-x-0 md:space-x-4">
+      <div className="w-full flex flex-wrap md:flex-nowrap justify-between space-y-4 md:space-y-0 space-x-0 md:space-x-4">
         <div className="bg-white rounded-lg shadow-md p-6 flex-1">
           <h3 className="text-xl mb-2">Total Orders</h3>
           <p className="text-3xl font-bold">{totalOrders}</p>
@@ -153,16 +165,21 @@ const Dashboard = () => {
         </div>
         <div className="bg-white rounded-lg shadow-md p-6 flex-1">
           <h3 className="text-xl mb-4">Today's Orders</h3>
+          {orders.length === 0 && (
+            <div className="flex justify-center items-center w-full">
+              <p className="text-2xl text-center">No Orders Found</p>
+            </div>
+          )}
           <ul className="space-y-2">
             {orders.slice(0, 5).map(order => (
               <li key={order.id} className="p-4 border rounded-lg shadow-sm flex justify-between">
                 <span className='capitalize'>{order.distributorName}</span>
-                <span className='bg-[#eb34a8] hover:bg-blue-700 text-white font-bold py-1 px-4 rounded' onClick={() => handlevieworder(order.order_id)}>View</span>
+                <span className='bg-[#eb34a8] hover:bg-blue-700 text-white font-bold py-1 px-4 rounded' onClick={() => handleViewOrder(order.order_id)}>View</span>
               </li>
             ))}
           </ul>
           <div className="flex justify-center mt-4">
-            <button className="bg-[#eb34a8] text-white px-4 py-2 rounded-lg hover:bg-blue-700" onClick={()=> handleviewall()}>
+            <button className="bg-[#eb34a8] text-white px-4 py-2 rounded-lg hover:bg-blue-700" onClick={handleViewAll}>
               View All
             </button>
           </div>

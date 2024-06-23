@@ -7,6 +7,7 @@ import { useReactToPrint } from 'react-to-print';
 const OrderDetails = () => {
   const { orderId } = useParams();
   const [orderDetails, setOrderDetails] = useState(null);
+  const [price, setPrice] = useState({});
   const componentRef = useRef();
 
   useEffect(() => {
@@ -16,6 +17,12 @@ const OrderDetails = () => {
         setOrderDetails(response.data);
       } catch (error) {
         console.error('Error fetching order details:', error);
+      }
+      try{
+        const response = await axios.get(`http://127.0.0.1:8050/getprice`);
+        setPrice(response.data);
+      } catch (error) {
+        console.error('Error fetching price:', error);
       }
     };
     fetchOrderDetails();
@@ -30,12 +37,12 @@ const OrderDetails = () => {
   }
 
   const items = [
-    { description: '1 Liter', quantity: orderDetails.quantity1ltr, price: 20.00 },
-    { description: '200 ml', quantity: orderDetails.quantity200ml, price: 5.00 },
-    { description: '20 Liter', quantity: orderDetails.quantity20ltr, price: 50.00 },
-    { description: '2 Liter', quantity: orderDetails.quantity2ltr, price: 30.00 },
-    { description: '500 ml', quantity: orderDetails.quantity500ml, price: 10.00 },
-    { description: '5 Liter', quantity: orderDetails.quantity5ltr, price: 40.00 }
+    { description: '1 Liter', quantity: orderDetails.quantity1ltr, price: price.price1ltr},
+    { description: '200 ml', quantity: orderDetails.quantity200ml, price: price.price200ml},
+    { description: '20 Liter', quantity: orderDetails.quantity20ltr, price: price.price20ltr},
+    { description: '2 Liter', quantity: orderDetails.quantity2ltr, price: price.price2ltr },
+    { description: '500 ml', quantity: orderDetails.quantity500ml, price: price.price500ml },
+    { description: '5 Liter', quantity: orderDetails.quantity5ltr, price: price.price5ltr }
   ].filter(item => item.quantity > 0);  
 
   const calculateTotal = () => {
@@ -90,7 +97,7 @@ const OrderDetails = () => {
                 <tr key={index}>
                   <td className="py-4 text-gray-700">{item.description}</td>
                   <td className="py-4 text-gray-700">{item.quantity}</td>
-                  <td className="py-4 text-gray-700">₹{item.price.toFixed(2)}</td>
+                  <td className="py-4 text-gray-700">₹{item.price}</td>
                   <td className="py-4 text-gray-700">₹{(item.quantity * item.price).toFixed(2)}</td>
                 </tr>
               ))}
@@ -127,7 +134,7 @@ const OrderDetails = () => {
           onClick={handlePrint}
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
         >
-          Print as PDF
+          Print
         </button>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -14,14 +14,26 @@ const Order = () => {
     const [quantity2ltr, setQuantity2ltr] = useState('');
     const [quantity5ltr, setQuantity5ltr] = useState('');
     const [quantity20ltr, setQuantity20ltr] = useState('');
+    const [price,setPrice] = useState({})
+    useEffect(() => {
+        const fetchOrderDetails = async () => {
+          try{
+            const response = await axios.get(`http://127.0.0.1:8050/getprice`);
+            setPrice(response.data);
+          } catch (error) {
+            console.error('Error fetching price:', error);
+          }
+        };
+        fetchOrderDetails();
+      });
 
     const productPrices = {
-        '500ml': 10,
-        '200ml': 15,
-        '1ltr': 20,
-        '2ltr': 30,
-        '5ltr': 50,
-        '20ltr': 150,
+        '500ml': price.price500ml,
+        '200ml': price.price200ml,
+        '1ltr': price.price1ltr,
+        '2ltr': price.price2ltr,
+        '5ltr': price.price5ltr,
+        '20ltr': price.price20ltr,
     };
 
     const calculateTotal = () => {
