@@ -3,7 +3,7 @@ import { loginSuccess } from '../actions/authActions';
 
 export const login = async (email, password, dispatch) => {
   try {
-    const response = await axios.post('http://127.0.0.1:8050/login', {
+    const response = await axios.post('https://internship-backend-2-ou29.onrender.com/login', {
       email,
       password,
     });

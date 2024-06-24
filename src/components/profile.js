@@ -12,7 +12,7 @@ const Profile = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://127.0.0.1:8050/getuser', {
+                const response = await axios.get('https://internship-backend-2-ou29.onrender.com/getuser', {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
@@ -41,7 +41,7 @@ const Profile = () => {
 
     const handleSaveClick = async () => {
         try {
-            const response = await axios.post('http://localhost:8050/update-profile', data, {
+            const response = await axios.post('https://internship-backend-2-ou29.onrender.com/update-profile', data, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }

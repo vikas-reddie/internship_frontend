@@ -18,7 +18,7 @@ const Order = () => {
     useEffect(() => {
         const fetchOrderDetails = async () => {
           try{
-            const response = await axios.get(`http://127.0.0.1:8050/getprice`);
+            const response = await axios.get(`https://internship-backend-2-ou29.onrender.com/getprice`);
             setPrice(response.data);
           } catch (error) {
             console.error('Error fetching price:', error);
@@ -113,7 +113,7 @@ const Order = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-          const response = await axios.post('http://127.0.0.1:8050/addorder', {
+          const response = await axios.post('https://internship-backend-2-ou29.onrender.com/addorder', {
             distributorName,
             phoneNumber,
             address,

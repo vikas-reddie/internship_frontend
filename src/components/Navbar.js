@@ -24,6 +24,7 @@ const Navbar = () => {
   const navItems = [
     { id: 1, text: 'Profile', path: '/profile' },
     {id:2,text:'Orders',path:'orders'},
+    {id:3,text:'Update Price',path:'/update-price'}
   ];
 
   const isHomePage = location.pathname === '/';

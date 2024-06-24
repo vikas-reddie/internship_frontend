@@ -13,13 +13,13 @@ const OrderDetails = () => {
   useEffect(() => {
     const fetchOrderDetails = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:8050/getorder/${orderId}`);
+        const response = await axios.get(`https://internship-backend-2-ou29.onrender.com/getorder/${orderId}`);
         setOrderDetails(response.data);
       } catch (error) {
         console.error('Error fetching order details:', error);
       }
       try{
-        const response = await axios.get(`http://127.0.0.1:8050/getprice`);
+        const response = await axios.get(`https://internship-backend-2-ou29.onrender.com/getprice`);
         setPrice(response.data);
       } catch (error) {
         console.error('Error fetching price:', error);

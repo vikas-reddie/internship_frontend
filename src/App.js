@@ -10,6 +10,7 @@ import Orders from './components/Orders';
 import Profile from './components/profile';
 import Order from './components/Order';
 import OrderDetails from './components/OrderDetails';
+import UpdatePrice from './components/UpdatePrice';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
               <Route path='profile' element={<Profile/>}/>
               <Route path='/add-order' element={<Order/>}/>
               <Route path="/order-details/:orderId" element={<OrderDetails />} />
+              <Route path="/update-price" element={<UpdatePrice />} />
             </Routes>
           </div>
         </Router>

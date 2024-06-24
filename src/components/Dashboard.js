@@ -55,14 +55,14 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const priceResponse = await axios.get('http://127.0.0.1:8050/getprice');
+        const priceResponse = await axios.get('https://internship-backend-2-ou29.onrender.com/getprice');
         setPrice(priceResponse.data);
       } catch (error) {
         console.error('Error fetching price:', error);
       }
 
       try {
-        const userResponse = await axios.get('http://127.0.0.1:8050/getuser', {
+        const userResponse = await axios.get('https://internship-backend-2-ou29.onrender.com/getuser', {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -73,7 +73,7 @@ const Dashboard = () => {
       }
 
       try {
-        const ordersResponse = await axios.get('http://127.0.0.1:8050/getorders');
+        const ordersResponse = await axios.get('https://internship-backend-2-ou29.onrender.com/getorders');
         const fetchedOrders = ordersResponse.data;
         setTotalOrders(fetchedOrders.length);
 

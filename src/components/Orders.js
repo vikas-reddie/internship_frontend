@@ -7,7 +7,7 @@ const Orders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-         const response = await axios.get('http://127.0.0.1:8050/getorders');
+         const response = await axios.get('https://internship-backend-2-ou29.onrender.com/getorders');
         setOrders(response.data);
         console.log(response.data);
       }
